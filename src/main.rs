@@ -1,12 +1,15 @@
 use inquire::Text;
 use std::{
   env, fs,
-  os::windows::process::CommandExt,
   path::{Path, PathBuf},
   process::{exit, Command},
 };
-use sysinfo::{Signal, System};
 use windirs::{known_folder_path, FolderId};
+
+#[cfg(feature = "flow_launcher")]
+use std::os::windows::process::CommandExt;
+#[cfg(feature = "flow_launcher")]
+use sysinfo::{Signal, System};
 
 #[derive(Debug, PartialEq, Eq)]
 enum Mode {
@@ -149,21 +152,24 @@ fn main() {
   });
 
   // Restart Flow Launcher
-  let mut sys = System::new_all();
-  sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+  #[cfg(feature = "flow_launcher")]
+  {
+    let mut sys = System::new_all();
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
 
-  for process in sys.processes().values() {
-    if let Some(exe) = process.exe() {
-      if exe.file_name().unwrap_or_default().to_ascii_lowercase() == "flow.launcher.exe" {
-        process.kill_with(Signal::Kill);
-        Command::new(exe.to_path_buf())
-          .creation_flags(0x00000008) // DETACHED_PROCESS
-          .spawn()
-          .unwrap_or_else(|err| {
-            eprintln!("Error while starting Flow Launcher again: {}", err);
-            exit(1);
-          });
-        println!("Flow Launcher restarted successfully");
+    for process in sys.processes().values() {
+      if let Some(exe) = process.exe() {
+        if exe.file_name().unwrap_or_default().to_ascii_lowercase() == "flow.launcher.exe" {
+          process.kill_with(Signal::Kill);
+          Command::new(exe.to_path_buf())
+            .creation_flags(0x00000008) // DETACHED_PROCESS
+            .spawn()
+            .unwrap_or_else(|err| {
+              eprintln!("Error while starting Flow Launcher again: {}", err);
+              exit(1);
+            });
+          println!("Flow Launcher restarted successfully");
+        }
       }
     }
   }

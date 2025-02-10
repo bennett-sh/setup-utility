@@ -1,9 +1,12 @@
 [package]
 name = "setup-utility"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
 inquire = "0.7.5"
-sysinfo = "0.33.1"
+sysinfo = { version = "0.33.1", optional = true}
 windirs = "1.0.1"
+
+[features]
+flow_launcher = ["sysinfo"]
