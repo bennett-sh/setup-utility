@@ -100,7 +100,7 @@ fn main() {
     exit(1);
   });
 
-  // I had no idea how horrible shortcuts are using Rust so I did this shit
+  // I had no idea how horrible shortcuts are using Rust so I did this
   let output = Command::new("powershell")
     .arg("-ExecutionPolicy")
     .arg("Bypass")
